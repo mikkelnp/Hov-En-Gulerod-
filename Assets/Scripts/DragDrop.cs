@@ -8,7 +8,7 @@ public class DragDrop : MonoBehaviour
     private Vector2 gridPosition;
     float xPos;
     float yPos;
-    [SerializeField] private Vector2 gridOffset;
+    //[SerializeField] private Vector2 gridOffset;
     private Vector3 newPosition;
     void Start()
     {
@@ -31,7 +31,7 @@ public class DragDrop : MonoBehaviour
 
         worldPosition.z = 0;
 
-        // Finger ned
+        // When first pressed
         if (touch.press.wasPressedThisFrame)
         {
             movedVeggie = Physics2D.OverlapPoint(worldPosition, veggieLayer);
@@ -41,67 +41,110 @@ public class DragDrop : MonoBehaviour
             }
         }
 
-        // Finger holdes nede
+        // While held down
         if (movedVeggie != null && touch.press.isPressed)
         {
             // xPosition
-            if (worldPosition.x <= gridPosition.x - 1 + gridOffset.x)
+
+            if (worldPosition.y >= gridPosition.y + 0.5 || worldPosition.y <= gridPosition.y - 0.5)
             {
-                xPos = gridPosition.x - 1 + gridOffset.x;
-            }
-            else if (worldPosition.x >= gridPosition.x + 1 + gridOffset.x)
-            {
-                xPos = gridPosition.x + 1 + gridOffset.x; ;
-            }
-            else
-            {
-                xPos = worldPosition.x;
-            }
-            
-            // yPosition
-            if (worldPosition.y <= gridPosition.y - 1 + gridOffset.y)
-            {
-                yPos = gridPosition.y - 1 + gridOffset.y;
-            }
-            else if (worldPosition.y >= gridPosition.y + 1 + gridOffset.y)
-            {
-                yPos = gridPosition.y + 1 + gridOffset.y;
+                if (worldPosition.x <= gridPosition.x - 0.5)
+                {
+                    xPos = gridPosition.x - 0.5f;
+                }
+                else if (worldPosition.x >= gridPosition.x + 0.5)
+                {
+                    xPos = gridPosition.x + 0.5f;
+                }
+                else
+                {
+                    xPos = worldPosition.x;
+                }
             }
             else
             {
-                yPos = worldPosition.y;
+                if (worldPosition.x <= gridPosition.x - 1)
+                {
+                    xPos = gridPosition.x - 1;
+                }
+                else if (worldPosition.x >= gridPosition.x + 1)
+                {
+                    xPos = gridPosition.x + 1;
+                }
+                else
+                {
+                    xPos = worldPosition.x;
+                }
             }
 
-            Debug.Log("xPos = " + xPos + " yPos = " + yPos);
+            // yPosition
+            if (worldPosition.x >= gridPosition.x + 0.5 || worldPosition.x <= gridPosition.x - 0.5)
+            {
+                if (worldPosition.y <= gridPosition.y - 0.5)
+                {
+                    yPos = gridPosition.y - 0.5f;
+                }
+                else if (worldPosition.y >= gridPosition.y + 0.5)
+                {
+                    yPos = gridPosition.y + 0.5f;
+                }
+                else
+                {
+                    yPos = worldPosition.y;
+                }
+            }
+            else {
+                if (worldPosition.y <= gridPosition.y - 1)
+                {
+                    yPos = gridPosition.y - 1;
+                }
+                else if (worldPosition.y >= gridPosition.y + 1)
+                {
+                    yPos = gridPosition.y + 1;
+                }
+                else
+                {
+                    yPos = worldPosition.y;
+                }
+            }
 
             newPosition = new Vector3(xPos, yPos, 0);
-
             movedVeggie.transform.position = newPosition;
         }
 
-        // Finger slippes
+        // When released
         if (touch.press.wasReleasedThisFrame)
         {
             if (movedVeggie != null)
-            {
-                //Snap to nearest tile
+            {   //Snap to nearest tile
+
                 //Check new xPosition compared to old
-                if (newPosition.x > gridPosition.x + 0.5 + gridOffset.x)        { xPos =  1; }
-                else if (newPosition.x < gridPosition.x - 0.5 + gridOffset.x)   { xPos = -1; }
-                else                                                            { xPos =  0; }
+                if (newPosition.x > gridPosition.x + 0.5)       { xPos =  1; }
+                else if (newPosition.x < gridPosition.x - 0.5)  { xPos = -1; }
+                else                                            { xPos =  0; }
 
                 //Check new yPosition compared to old
-                if (newPosition.y > gridPosition.y + 0.5 + gridOffset.y)        { yPos =  1; }
-                else if (newPosition.y < gridPosition.y - 0.5 + gridOffset.y)   { yPos = -1; }
-                else                                                            { yPos =  0; }
-
+                if (newPosition.y > gridPosition.y + 0.5)       { yPos =  1; }
+                else if (newPosition.y < gridPosition.y - 0.5)  { yPos = -1; }
+                else                                            { yPos =  0; }
 
                 //snap to correct tile
-                movedVeggie.transform.position = new Vector3(gridPosition.x + xPos + gridOffset.x, gridPosition.y + yPos + gridOffset.y, 0);
+                movedVeggie.transform.position = new Vector3(gridPosition.x + xPos, gridPosition.y + yPos, 0);
 
+                Vector2 newGridPosition;
+                newGridPosition.x = gridPosition.x + xPos;
+                newGridPosition.y = gridPosition.y + yPos;
 
-                //Veggie veggie = movedVeggie.GetComponent<Veggie>();
-                //veggie.TjekOmKorrektPlads();
+                Veggie veggie = movedVeggie.GetComponent<Veggie>();
+
+                //update gridPosition
+                veggie.UpdateGridPosition(newGridPosition);
+
+                //move other tile to previous square
+                
+
+                //Check if 3 tiles have been matched
+                veggie.CheckIf3Matched();
             }
         }
     }
