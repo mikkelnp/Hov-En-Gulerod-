@@ -4,8 +4,12 @@ using UnityEngine.InputSystem;
 public class DragDrop : MonoBehaviour
 {
     private Camera gameCamera;
-    private Collider2D detRamte;
-
+    private Collider2D movedVeggie;
+    private Vector2 gridPosition;
+    float xPos;
+    float yPos;
+    [SerializeField] private Vector2 gridOffset;
+    private Vector3 newPosition;
     void Start()
     {
         gameCamera = Camera.main;
@@ -13,43 +17,90 @@ public class DragDrop : MonoBehaviour
 
     void Update()
     {
-        // Henter det lag, hvor man kan trække bogstaver i:
-        int traekbartLag = LayerMask.GetMask("Veggies");
+        // Henter det lag, hvor man kan trække veggies i:
+        int veggieLayer = LayerMask.GetMask("Veggies");
 
         if (Touchscreen.current == null) return;
 
-        var beroering = Touchscreen.current.primaryTouch;
+        var touch = Touchscreen.current.primaryTouch;
 
         // Omsætning af skærmposition til verdensposition:
-        Vector2 screenPosition = beroering.position.ReadValue();
+        Vector2 screenPosition = touch.position.ReadValue();
         Vector3 worldPosition =
             gameCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, 0));
 
         worldPosition.z = 0;
 
         // Finger ned
-        if (beroering.press.wasPressedThisFrame)
+        if (touch.press.wasPressedThisFrame)
         {
-            detRamte = Physics2D.OverlapPoint(worldPosition, traekbartLag);
+            movedVeggie = Physics2D.OverlapPoint(worldPosition, veggieLayer);
+            if (movedVeggie != null)
+            {
+                gridPosition = movedVeggie.GetComponent<Veggie>().gridPosition;
+            }
         }
 
         // Finger holdes nede
-        if (detRamte != null && beroering.press.isPressed)
+        if (movedVeggie != null && touch.press.isPressed)
         {
-            detRamte.transform.position = worldPosition;
+            // xPosition
+            if (worldPosition.x <= gridPosition.x - 1 + gridOffset.x)
+            {
+                xPos = gridPosition.x - 1 + gridOffset.x;
+            }
+            else if (worldPosition.x >= gridPosition.x + 1 + gridOffset.x)
+            {
+                xPos = gridPosition.x + 1 + gridOffset.x; ;
+            }
+            else
+            {
+                xPos = worldPosition.x;
+            }
+            
+            // yPosition
+            if (worldPosition.y <= gridPosition.y - 1 + gridOffset.y)
+            {
+                yPos = gridPosition.y - 1 + gridOffset.y;
+            }
+            else if (worldPosition.y >= gridPosition.y + 1 + gridOffset.y)
+            {
+                yPos = gridPosition.y + 1 + gridOffset.y;
+            }
+            else
+            {
+                yPos = worldPosition.y;
+            }
+
+            Debug.Log("xPos = " + xPos + " yPos = " + yPos);
+
+            newPosition = new Vector3(xPos, yPos, 0);
+
+            movedVeggie.transform.position = newPosition;
         }
 
         // Finger slippes
-        if (beroering.press.wasReleasedThisFrame)
+        if (touch.press.wasReleasedThisFrame)
         {
-            if (detRamte == null)
+            if (movedVeggie != null)
             {
-                Debug.Log("detRamte er null");
-            }
+                //Snap to nearest tile
+                //Check new xPosition compared to old
+                if (newPosition.x > gridPosition.x + 0.5 + gridOffset.x)        { xPos =  1; }
+                else if (newPosition.x < gridPosition.x - 0.5 + gridOffset.x)   { xPos = -1; }
+                else                                                            { xPos =  0; }
 
-            if (detRamte != null)
-            {
-                //Veggie veggie = detRamte.GetComponent<Veggie>();
+                //Check new yPosition compared to old
+                if (newPosition.y > gridPosition.y + 0.5 + gridOffset.y)        { yPos =  1; }
+                else if (newPosition.y < gridPosition.y - 0.5 + gridOffset.y)   { yPos = -1; }
+                else                                                            { yPos =  0; }
+
+
+                //snap to correct tile
+                movedVeggie.transform.position = new Vector3(gridPosition.x + xPos + gridOffset.x, gridPosition.y + yPos + gridOffset.y, 0);
+
+
+                //Veggie veggie = movedVeggie.GetComponent<Veggie>();
                 //veggie.TjekOmKorrektPlads();
             }
         }
