@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,9 +11,12 @@ public class DragDrop : MonoBehaviour
     float yPos;
     //[SerializeField] private Vector2 gridOffset;
     private Vector3 newPosition;
+    private GridInfo gridInfo;
+
     void Start()
     {
         gameCamera = Camera.main;
+        gridInfo = GameObject.Find("DragDrop").GetComponent<GridInfo>();
     }
 
     void Update()
@@ -141,11 +145,51 @@ public class DragDrop : MonoBehaviour
                 veggie.UpdateGridPosition(newGridPosition);
 
                 //move other tile to previous square
-                
+                SwitchTiles(newGridPosition);
+
 
                 //Check if 3 tiles have been matched
                 veggie.CheckIf3Matched();
             }
         }
+    }
+    void SwitchTiles(Vector2 newGridPosition)
+    {
+        //get array coordinates
+        int xArrayPosOld = (int)gridPosition.x + 2;
+        int yArrayPosOld = (int)(gridPosition.y + 2.5);
+        int xArrayPosNew = (int)newGridPosition.x + 2;
+        int yArrayPosNew = (int)(newGridPosition.y + 2.5);
+
+        //switch positions in array
+        GameObject veggie2 = gridInfo.grid[xArrayPosNew, yArrayPosNew];
+        gridInfo.grid[xArrayPosNew, yArrayPosNew] = movedVeggie.gameObject;
+        gridInfo.grid[xArrayPosOld, yArrayPosOld] = veggie2;
+
+        Debug.Log("arrayPosNew name = " + gridInfo.grid[xArrayPosNew, yArrayPosNew].name);
+        Debug.Log("arrayPosOld name = " + gridInfo.grid[xArrayPosOld, yArrayPosOld].name);
+
+        //Switch positions on board
+        Vector3 newPositionVeggie2 = veggie2.GetComponent<Transform>().transform.position;
+        if (gridPosition.x > newGridPosition.x)
+        {
+            newPositionVeggie2.x += 1;
+        }
+        else if (gridPosition.x < newGridPosition.x)
+        {
+            newPositionVeggie2.x -= 1;
+        }
+        else if (gridPosition.y > newGridPosition.y)
+        {
+            newPositionVeggie2.y += 1;
+        }
+        else if (gridPosition.y < newGridPosition.y)
+        {
+            newPositionVeggie2.y -= 1;
+        }
+        veggie2.GetComponent<Transform>().transform.position = newPositionVeggie2;
+
+        //update veggie2 grid position
+        veggie2.GetComponent<Veggie>().UpdateGridPosition(gridPosition);
     }
 }

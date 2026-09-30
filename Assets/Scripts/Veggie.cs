@@ -10,7 +10,12 @@ public class Veggie : MonoBehaviour
         float xPos = gameObject.transform.position.x;
         float yPos = gameObject.transform.position.y;
         gridPosition = new Vector2(xPos, yPos);
-        Debug.Log(gridPosition);
+
+        //add to grid array
+        GridInfo gridInfo = GameObject.Find("DragDrop").GetComponent<GridInfo>();
+        int xArrayPos = (int) xPos + 2;
+        int yArrayPos = (int) (yPos + 2.5);
+        gridInfo.grid[xArrayPos, yArrayPos] = gameObject;
     }
     public void UpdateGridPosition(Vector2 newPosition)
     {
