@@ -12,6 +12,7 @@ public class DragDrop : MonoBehaviour
     //[SerializeField] private Vector2 gridOffset;
     private Vector3 newPosition;
     private GridInfo gridInfo;
+    private Veggie veggie;
 
     void Start()
     {
@@ -97,7 +98,8 @@ public class DragDrop : MonoBehaviour
                     yPos = worldPosition.y;
                 }
             }
-            else {
+            else
+            {
                 if (worldPosition.y <= gridPosition.y - 1)
                 {
                     yPos = gridPosition.y - 1;
@@ -123,14 +125,14 @@ public class DragDrop : MonoBehaviour
             {   //Snap to nearest tile
 
                 //Check new xPosition compared to old
-                if (newPosition.x > gridPosition.x + 0.5)       { xPos =  1; }
-                else if (newPosition.x < gridPosition.x - 0.5)  { xPos = -1; }
-                else                                            { xPos =  0; }
+                if (newPosition.x > gridPosition.x + 0.5) { xPos = 1; }
+                else if (newPosition.x < gridPosition.x - 0.5) { xPos = -1; }
+                else { xPos = 0; }
 
                 //Check new yPosition compared to old
-                if (newPosition.y > gridPosition.y + 0.5)       { yPos =  1; }
-                else if (newPosition.y < gridPosition.y - 0.5)  { yPos = -1; }
-                else                                            { yPos =  0; }
+                if (newPosition.y > gridPosition.y + 0.5) { yPos = 1; }
+                else if (newPosition.y < gridPosition.y - 0.5) { yPos = -1; }
+                else { yPos = 0; }
 
                 //snap to correct tile
                 movedVeggie.transform.position = new Vector3(gridPosition.x + xPos, gridPosition.y + yPos, 0);
@@ -139,21 +141,20 @@ public class DragDrop : MonoBehaviour
                 newGridPosition.x = gridPosition.x + xPos;
                 newGridPosition.y = gridPosition.y + yPos;
 
-                Veggie veggie = movedVeggie.GetComponent<Veggie>();
+                veggie = movedVeggie.GetComponent<Veggie>();
 
-                //update gridPosition
-                veggie.UpdateGridPosition(newGridPosition);
 
                 //move other tile to previous square
-                SwitchTiles(newGridPosition);
+                Veggie veggie2 = SwitchTiles(newGridPosition);
 
 
                 //Check if 3 tiles have been matched
                 veggie.CheckIf3Matched();
+                veggie2.CheckIf3Matched();
             }
         }
     }
-    void SwitchTiles(Vector2 newGridPosition)
+    private Veggie SwitchTiles(Vector2 newGridPosition)
     {
         //get array coordinates
         int xArrayPosOld = (int)gridPosition.x + 2;
@@ -189,7 +190,10 @@ public class DragDrop : MonoBehaviour
         }
         veggie2.GetComponent<Transform>().transform.position = newPositionVeggie2;
 
-        //update veggie2 grid position
-        veggie2.GetComponent<Veggie>().UpdateGridPosition(gridPosition);
+        //update veggie grid positions
+        veggie.UpdateGridPosition(newGridPosition, xArrayPosNew, yArrayPosNew);
+        veggie2.GetComponent<Veggie>().UpdateGridPosition(gridPosition, xArrayPosOld, yArrayPosOld);
+
+        return veggie2.GetComponent<Veggie>();
     }
 }
