@@ -5,16 +5,19 @@ using UnityEngine;
 
 public class Veggie : MonoBehaviour
 {
-    [SerializeField] private string veggieType;
+    public string veggieType;
     public Vector2 gridPosition;
     private GridInfo gridInfo;
-    int xArrayPos;
-    int yArrayPos;
+    private DragDrop dragDrop;
+    private int xArrayPos;
+    private int yArrayPos;
     private void Start()
     {
         float xPos = gameObject.transform.position.x;
         float yPos = gameObject.transform.position.y;
         gridPosition = new Vector2(xPos, yPos);
+
+        dragDrop = GameObject.Find("DragDrop").GetComponent<DragDrop>();
 
         //add to array
         gridInfo = GameObject.Find("DragDrop").GetComponent<GridInfo>();
@@ -36,7 +39,7 @@ public class Veggie : MonoBehaviour
         yArrayPos -= 1;
         gridPosition.y -= 1;
     }
-    public void CheckIf3Matched()
+    public List<int> CheckIf3Matched()
     {
         bool nextVeggieIsSame = true;
         int adjacentVeggie = 1;
@@ -131,6 +134,12 @@ public class Veggie : MonoBehaviour
             {
                 horizontalSolved = true;
                 Debug.Log(solvedHorizontal.Count + " in a row!");
+
+                if (veggieType == dragDrop.targetVeggie)
+                {
+                    dragDrop.amountMatched += solvedHorizontal.Count - 2;
+                }
+
                 foreach (Vector2 i in solvedHorizontal)
                 {
                     int x = (int)i.x;
@@ -145,6 +154,12 @@ public class Veggie : MonoBehaviour
             {
                 verticalSolved = true;
                 Debug.Log(solvedVertical.Count + " in a column!");
+
+                if (veggieType == dragDrop.targetVeggie)
+                {
+                    dragDrop.amountMatched += solvedVertical.Count - 2;
+                }
+
                 foreach (Vector2 i in solvedVertical)
                 {
                     int x = (int)i.x;
@@ -170,8 +185,10 @@ public class Veggie : MonoBehaviour
             }
 
 
+
             //move tiles down
-            gridInfo.MoveDown(xWhereErasedFrom);
+            return xWhereErasedFrom;
         }
+        return null;
     }
 }

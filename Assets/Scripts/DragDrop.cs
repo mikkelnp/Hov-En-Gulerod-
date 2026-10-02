@@ -1,4 +1,5 @@
-using Unity.VisualScripting;
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,11 +14,17 @@ public class DragDrop : MonoBehaviour
     private Vector3 newPosition;
     private GridInfo gridInfo;
     private Veggie veggie;
+    [SerializeField] private int movesThisLevel;
+    private int movesUsed = 0;
+    public string targetVeggie;
+    public int amountToBeMatched;
+    public int amountMatched = 0;
 
     void Start()
     {
         gameCamera = Camera.main;
         gridInfo = GameObject.Find("DragDrop").GetComponent<GridInfo>();
+        GetComponent<CanvasText>().UpdateMovesLeftText(movesThisLevel);
     }
 
     void Update()
@@ -141,16 +148,37 @@ public class DragDrop : MonoBehaviour
                 newGridPosition.x = gridPosition.x + xPos;
                 newGridPosition.y = gridPosition.y + yPos;
 
-                veggie = movedVeggie.GetComponent<Veggie>();
+
+                if (newGridPosition != gridPosition) //check if moved to same tile
+                {
+
+                    veggie = movedVeggie.GetComponent<Veggie>();
+
+                    //move other tile to previous square
+                    Veggie veggie2 = SwitchTiles(newGridPosition);
 
 
-                //move other tile to previous square
-                Veggie veggie2 = SwitchTiles(newGridPosition);
+                    //Check if 3 tiles have been matched
+                    List<int> list1 = new List<int>();
+                    List<int> list2 = new List<int>();
 
+                    list1 = veggie.CheckIf3Matched();
+                    list2 = veggie2.CheckIf3Matched();
+                    if (list1 != null) { gridInfo.MoveDown(list1); }
+                    if (list2 != null) { gridInfo.MoveDown(list2); }
 
-                //Check if 3 tiles have been matched
-                veggie.CheckIf3Matched();
-                veggie2.CheckIf3Matched();
+                    movesUsed++;
+                    Debug.Log("moves used: " + movesUsed);
+                    if (movesUsed >= movesThisLevel)
+                    {
+                        Debug.Log("no more moves left");
+                    }
+
+                    Debug.Log(amountMatched + " out of " + amountToBeMatched + " matched");
+
+                    GetComponent<CanvasText>().UpdateMovesLeftText(movesThisLevel - movesUsed);
+
+                }
             }
         }
     }

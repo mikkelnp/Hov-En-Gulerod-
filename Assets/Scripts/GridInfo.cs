@@ -1,11 +1,12 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class GridInfo : MonoBehaviour
 {
     public GameObject[,] grid = new GameObject[5,8];
-    [SerializeField] private GameObject apple;
+    [SerializeField] private GameObject tileToSpawn;
 
     public void MoveDown(List<int> xWhereErased)
     {
@@ -24,10 +25,10 @@ public class GridInfo : MonoBehaviour
 
                     if (y == 7)
                     {
-                        GameObject newVeggie = Instantiate(apple, new Vector3(x - 2, 4.5f, 0), new Quaternion());
+                        //spawn new tile on top row
+                        GameObject newVeggie = Instantiate(tileToSpawn, new Vector3(x - 2, 4.5f, 0), new Quaternion());
                         grid[x, y] = newVeggie;
                     }
-
                 }
             }
         }

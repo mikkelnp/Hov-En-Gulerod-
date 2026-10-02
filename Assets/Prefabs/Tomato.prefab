@@ -52,6 +52,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4834255040443458112, guid: df970a364f7bf7d47997e0b63c463e57, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f93f58ef26c77aa42b91be234ce620b8, type: 3}
+    - target: {fileID: 4834255040443458112, guid: df970a364f7bf7d47997e0b63c463e57, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9129000655658078045, guid: df970a364f7bf7d47997e0b63c463e57, type: 3}
       propertyPath: m_Name
       value: Tomato
